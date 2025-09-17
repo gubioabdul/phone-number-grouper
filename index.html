@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Phone Number Grouper</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
+    h2 { color: #2c3e50; }
+    textarea { width: 100%; height: 150px; margin-bottom: 10px; }
+    input, button { margin: 5px 0; padding: 10px; cursor: pointer; }
+    pre { background: #fff; padding: 15px; border: 1px solid #ddd; max-height: 400px; overflow-y: auto; }
+    .controls { margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <h2>📱 Phone Number Grouper</h2>
+
+  <h3>Option 1: Paste Numbers</h3>
+  <textarea id="textInput" placeholder="Paste phone numbers here, one per line..."></textarea>
+  <button onclick="loadFromText()">Load from Text</button>
+
+  <h3>Option 2: Upload TXT File</h3>
+  <input type="file" id="fileInput" accept=".txt">
+  <br><br>
+
+  <div class="controls">
+    <button onclick="prevBatch()">⬅️ Previous</button>
+    <button onclick="nextBatch()">➡️ Next</button>
+  </div>
+
+  <pre id="output">Paste numbers or upload a TXT file to begin...</pre>
+
+  <script>
+    let numbers = [];
+    let batchSize = 100, groupSize = 10;
+    let batchIndex = 0;
+
+    // Load numbers from pasted text
+    function loadFromText() {
+      const text = document.getElementById("textInput").value;
+      numbers = text.split(/\r?\n/).filter(line => line.trim() !== "");
+      batchIndex = 0;
+      showBatch();
+    }
+
+    // Load numbers from uploaded file
+    document.getElementById("fileInput").addEventListener("change", function(e) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        numbers = e.target.result.split(/\r?\n/).filter(line => line.trim() !== "");
+        batchIndex = 0;
+        showBatch();
+      };
+      reader.readAsText(file);
+    });
+
+    // Show a batch
+    function showBatch() {
+      if (numbers.length === 0) return;
+      const start = batchIndex * batchSize;
+      const end = Math.min(start + batchSize, numbers.length);
+      let output = `=== Batch ${batchIndex + 1} (${start + 1}-${end}) ===\n\n`;
+
+      const groupStartNumber = batchIndex * (batchSize / groupSize) + 1;
+      for (let g = 0; g < (end - start) / groupSize; g++) {
+        output += `Group ${groupStartNumber + g}:\n`;
+        const group = numbers.slice(start + g * groupSize, start + (g + 1) * groupSize);
+        output += group.join("\n") + "\n\n";
+      }
+
+      document.getElementById("output").textContent = output;
+    }
+
+    // Navigation
+    function nextBatch() {
+      if ((batchIndex + 1) * batchSize < numbers.length) {
+        batchIndex++;
+        showBatch();
+      }
+    }
+
+    function prevBatch() {
+      if (batchIndex > 0) {
+        batchIndex--;
+        showBatch();
+      }
+    }
+  </script>
+</body>
+</html>
