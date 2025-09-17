@@ -3,13 +3,33 @@
 <head>
   <meta charset="UTF-8">
   <title>Phone Number Grouper</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Mobile friendly -->
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f9f9f9; }
-    h2 { color: #2c3e50; }
-    textarea { width: 100%; height: 150px; margin-bottom: 10px; }
-    input, button { margin: 5px 0; padding: 10px; cursor: pointer; }
-    pre { background: #fff; padding: 15px; border: 1px solid #ddd; max-height: 400px; overflow-y: auto; }
-    .controls { margin-top: 10px; }
+    body { font-family: Arial, sans-serif; margin: 10px; background: #f9f9f9; }
+    h2 { color: #2c3e50; font-size: 1.5em; text-align: center; }
+    textarea { width: 100%; height: 120px; margin-bottom: 10px; font-size: 14px; }
+    input, button { 
+      margin: 5px 0; 
+      padding: 10px; 
+      cursor: pointer; 
+      width: 100%; 
+      max-width: 300px; 
+      display: block; 
+      margin-left: auto; 
+      margin-right: auto; 
+    }
+    pre { 
+      background: #fff; 
+      padding: 10px; 
+      border: 1px solid #ddd; 
+      max-height: 300px; 
+      overflow-y: auto; 
+      font-size: 13px; 
+      white-space: pre-wrap; 
+      word-wrap: break-word;
+    }
+    .controls { margin-top: 10px; text-align: center; }
+    #copyBtn { background: #2c3e50; color: white; border: none; }
   </style>
 </head>
 <body>
@@ -21,11 +41,11 @@
 
   <h3>Option 2: Upload TXT File</h3>
   <input type="file" id="fileInput" accept=".txt">
-  <br><br>
 
   <div class="controls">
     <button onclick="prevBatch()">⬅️ Previous</button>
     <button onclick="nextBatch()">➡️ Next</button>
+    <button id="copyBtn" onclick="copyOutput()">📋 Copy Output</button>
   </div>
 
   <pre id="output">Paste numbers or upload a TXT file to begin...</pre>
@@ -35,7 +55,6 @@
     let batchSize = 100, groupSize = 10;
     let batchIndex = 0;
 
-    // Load numbers from pasted text
     function loadFromText() {
       const text = document.getElementById("textInput").value;
       numbers = text.split(/\r?\n/).filter(line => line.trim() !== "");
@@ -43,7 +62,6 @@
       showBatch();
     }
 
-    // Load numbers from uploaded file
     document.getElementById("fileInput").addEventListener("change", function(e) {
       const file = e.target.files[0];
       const reader = new FileReader();
@@ -55,7 +73,6 @@
       reader.readAsText(file);
     });
 
-    // Show a batch
     function showBatch() {
       if (numbers.length === 0) return;
       const start = batchIndex * batchSize;
@@ -72,7 +89,6 @@
       document.getElementById("output").textContent = output;
     }
 
-    // Navigation
     function nextBatch() {
       if ((batchIndex + 1) * batchSize < numbers.length) {
         batchIndex++;
@@ -85,6 +101,13 @@
         batchIndex--;
         showBatch();
       }
+    }
+
+    function copyOutput() {
+      const output = document.getElementById("output").textContent;
+      navigator.clipboard.writeText(output).then(() => {
+        alert("✅ Output copied to clipboard!");
+      });
     }
   </script>
 </body>
